@@ -1,0 +1,42 @@
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+#undef DEMO_USE_SNMP_VERSION_3
+#ifdef DEMO_USE_SNMP_VERSION_3
+#include "net-snmp/transform_oids.h"
+
+const char *our_v3_passphrase = "The Net-SNMP Demo";
+
+#endif
+
+main(){
+
+struct snmp_session session, *ss;
+struct snmp_pdu *pdu;
+struct snmp_response *response;
+
+oid anOID[MAX_OID_LEN];
+size_t anOID_len = MAX_OID_LEN;
+
+struct variable_list *vars;
+int status;
+
+
+init_nmp("snmpapp");
+
+snmp_sess_init(&session);
+session.peername = "test.net-snmp.org";
+
+#ifdef DEMO_USE_SNMP_VERSION_3
+
+session.version=SNMP_VERSION_3;
+
+session.securityName=strdup("MD5User");
+session.securityNameLen=strlen(session.securityName);
+
+session.securityLevel = SNMP_SEC_LEVEL_AUTHNOPRIV;
+
+session.securityAuthProto = usmHMACMD5AuthProtocol;
+session.securityAuthProtoLen = 
+sizeof(usmHMACMD5AuthProtocol)/sizeof(oid);
+session.seurtyAuthKeyLen = USM_AUTH_KU_LEN;
+
